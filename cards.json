@@ -1,0 +1,127 @@
+[
+    {
+        "Actions": [
+            {
+                "ActionKey": {
+                    "ActionName": "Travel",
+                    "Attribute": "Intrepidity",
+                    "AttributeMinimum": 3,
+                    "ID": "moon",
+                    "ReqLocation": "Earth",
+                    "SecondaryCardSpecifiers": [
+                        [
+                            "explorer_compass",
+                            "",
+                            ""
+                        ],
+                        [
+                            "",
+                            "Portal Drive",
+                            ""
+                        ],
+                        [
+                            "",
+                            "",
+                            "Contract"
+                        ]
+                    ]
+                },
+                "ActionResult": {
+                    "AttributeModified": "Intrepidity",
+                    "AttributeModifier": 1.5,
+                    "Duration": 5,
+                    "FlavorText": "Travel to the Moon.",
+                    "OutcomeText": "Find a mystic orb.",
+                    "ReturnedCardIDs": [
+                        "mystic_orb"
+                    ],
+                    "ReturnedQuantities": [
+                        1
+                    ]
+                }
+            },
+            {
+                "ActionKey": {
+                    "ActionName": "Craft",
+                    "Attribute": "Arcanum",
+                    "AttributeMinimum": 2,
+                    "ID": "moon",
+                    "ReqLocation": "Earth",
+                    "SecondaryCardSpecifiers": [
+                        [
+                            "mystic_orb",
+                            "",
+                            ""
+                        ],
+                        [
+                            "",
+                            "Crafting",
+                            ""
+                        ]
+                    ]
+                },
+                "ActionResult": {
+                    "AttributeModified": "Arcanum",
+                    "AttributeModifier": 1.2999999523162842,
+                    "Duration": 50,
+                    "FlavorText": "Perhaps this will do something...",
+                    "OutcomeText": "It seems to reflects lasers.",
+                    "ReturnedCardIDs": [
+                        "lunar_orb"
+                    ],
+                    "ReturnedQuantities": [
+                        1
+                    ]
+                }
+            }
+        ],
+        "FlavorText": "Some flavor text for the moon.",
+        "Habitat": "Earth",
+        "ID": "moon",
+        "ImagePath": "moon.png",
+        "Lifespan": 0,
+        "Name": "Moon",
+        "Price": 0,
+        "Property": "Moon",
+        "System": "Avalon",
+        "Type": "Habitat"
+    },
+    {
+        "Actions": [
+            {
+                "ActionKey": {
+                    "ActionName": "Talk",
+                    "Attribute": "Arcanum",
+                    "AttributeMinimum": 3,
+                    "ID": "mystic_orb",
+                    "ReqLocation": "",
+                    "SecondaryCardSpecifiers": [
+                    ]
+                },
+                "ActionResult": {
+                    "AttributeModified": "Arcanum",
+                    "AttributeModifier": 1.5,
+                    "Duration": 5,
+                    "FlavorText": "It seems alive...",
+                    "OutcomeText": "It withers in my hands...",
+                    "ReturnedCardIDs": [
+                        "knowledge"
+                    ],
+                    "ReturnedQuantities": [
+                        1
+                    ]
+                }
+            }
+        ],
+        "FlavorText": "It hums with mystery...",
+        "Habitat": "",
+        "ID": "mystic_orb",
+        "ImagePath": "mystic_orb.png",
+        "Lifespan": 0,
+        "Name": "Mystic Orb",
+        "Price": 10,
+        "Property": "Arcane",
+        "System": "",
+        "Type": "Magical Ward"
+    }
+]

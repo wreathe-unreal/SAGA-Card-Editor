@@ -500,7 +500,9 @@ void MainWindow::on_actionReturned_textChanged(const QString &arg1)
 
 void MainWindow::on_actionAddRequiredButton_clicked()
 {
-    if(uiPtr->actionRequiredID->text() == "")
+    if(uiPtr->actionRequiredID->text() == ""
+        && uiPtr->actionRequiredType->currentIndex() == 0
+        && uiPtr->actionRequiredProperty->currentIndex() == 0)
     {
         // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
         QMessageBox msgBox;  // Create an instance of QMessageBox
@@ -509,10 +511,10 @@ void MainWindow::on_actionAddRequiredButton_clicked()
         msgBox.setIcon(QMessageBox::Critical);
 
         // Set the title of the message box.
-        msgBox.setWindowTitle("Blank ID");
+        msgBox.setWindowTitle("Blank Fields");
 
         // Set the text to be displayed in the message box.
-        msgBox.setText("Blank ID is not allowed.");
+        msgBox.setText("Blank fields are not allowed.");
 
         // Add an OK button to allow the user to acknowledge the message.
         msgBox.setStandardButtons(QMessageBox::Ok);

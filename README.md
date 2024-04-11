@@ -1,3 +1,3 @@
 # SAGA-Card-Editor
-![SAGA-Card-Editor_qvgxJNWIyo](https://github.com/wreathe-unreal/SAGA-Card-Editor/assets/110839486/374952a8-45ef-484d-9ebe-b2bb9913966e)
 
+![SAGA-Card-Editor_2s2PLywghq](https://github.com/wreathe-unreal/SAGA-Card-Editor/assets/110839486/36dce9a4-2fcb-4970-b2be-743947aa6ba1)

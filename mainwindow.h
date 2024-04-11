@@ -15,6 +15,16 @@ QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
+    public:
+    QString SelectedItem;
+    bool bUpdateMode;
+    Ui::MainWindow* uiPtr;
+    QVector<Card> Cards;
+    QVector<Action> UpdateActions;
+    Card UpdateCard;
+    QVector<Action> NewActions;
+    Action NewAction;
+
     Q_OBJECT
 
 public:
@@ -54,6 +64,14 @@ private slots:
 
     void on_orphanTable_itemSelectionChanged();
 
+    void on_deleteCardButton_clicked();
+
+    void on_cardTable_clicked(const QModelIndex &index);
+
+    void on_actionReturnSelf_stateChanged(int arg1);
+
+    void on_comboSystem_currentIndexChanged(int index);
+
 private:
     QString CleanString(const QString &input);
     void PopulateComboBoxes();
@@ -61,7 +79,6 @@ private:
     QJsonArray StringToJsonArray(const QString &input);
     Ui::MainWindow *ui;
     QString JsonArrayToString(const QJsonArray &jsonArray);
-    void CheckValidCardID(QLineEdit *qle);
     void SetupTables();
     void ResetActionFields();
     void ResetCardFields();
@@ -70,5 +87,9 @@ private:
     void SetComboBoxToString(QComboBox *comboBox, const QString &value);
     void MakeTablesUneditable();
     QString IdToString(const QString &input);
+    void SetUpdateMode(bool status);
+    bool GetUpdateMode();
+    bool CheckValidCardID(QLineEdit *qle);
+    bool CardIDExists(QString ID);
 };
 #endif // MAINWINDOW_H

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1433</width>
+    <width>1454</width>
     <height>743</height>
    </rect>
   </property>
@@ -33,7 +33,7 @@
      <rect>
       <x>40</x>
       <y>70</y>
-      <width>191</width>
+      <width>161</width>
       <height>24</height>
      </rect>
     </property>
@@ -56,7 +56,7 @@
      <rect>
       <x>280</x>
       <y>200</y>
-      <width>1111</width>
+      <width>1141</width>
       <height>511</height>
      </rect>
     </property>
@@ -90,7 +90,7 @@
        <rect>
         <x>889</x>
         <y>329</y>
-        <width>221</width>
+        <width>231</width>
         <height>71</height>
        </rect>
       </property>
@@ -111,7 +111,7 @@
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>201</width>
+         <width>213</width>
          <height>30</height>
         </rect>
        </property>
@@ -134,7 +134,7 @@
        <rect>
         <x>889</x>
         <y>189</y>
-        <width>221</width>
+        <width>231</width>
         <height>111</height>
        </rect>
       </property>
@@ -201,7 +201,7 @@
         <x>20</x>
         <y>80</y>
         <width>131</width>
-        <height>26</height>
+        <height>30</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -365,7 +365,7 @@ color: rgb(27, 85, 51);</string>
       </widget>
       <widget class="QLineEdit" name="actionRequiredID">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="geometry">
         <rect>
@@ -450,7 +450,7 @@ color: rgb(0, 0, 0);</string>
        <property name="geometry">
         <rect>
          <x>60</x>
-         <y>120</y>
+         <y>140</y>
          <width>141</width>
          <height>24</height>
         </rect>
@@ -469,10 +469,20 @@ color: rgb(0, 0, 0);</string>
          <x>20</x>
          <y>40</y>
          <width>211</width>
-         <height>70</height>
+         <height>97</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="actionReturnSelf">
+          <property name="text">
+           <string>Return Self</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
@@ -553,7 +563,7 @@ color: rgb(0, 0, 0);</string>
        <rect>
         <x>889</x>
         <y>69</y>
-        <width>221</width>
+        <width>231</width>
         <height>111</height>
        </rect>
       </property>
@@ -636,14 +646,15 @@ color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="removeAction">
       <property name="geometry">
        <rect>
-        <x>950</x>
+        <x>900</x>
         <y>420</y>
         <width>171</width>
         <height>41</height>
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 20, 83);\ncolor: rgb(0, 0, 0);</string>
+       <string notr="true">background-color: rgb(255, 20, 83);
+color: rgb(0, 0, 0);</string>
       </property>
       <property name="text">
        <string>X Remove Action</string>
@@ -670,7 +681,7 @@ color: rgb(255, 30, 34);</string>
      <rect>
       <x>280</x>
       <y>40</y>
-      <width>1111</width>
+      <width>1141</width>
       <height>151</height>
      </rect>
     </property>
@@ -749,6 +760,9 @@ color: rgb(27, 85, 51);</string>
       </property>
      </widget>
      <widget class="QComboBox" name="comboHabitat">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>770</x>
@@ -756,6 +770,9 @@ color: rgb(27, 85, 51);</string>
         <width>141</width>
         <height>24</height>
        </rect>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QLabel" name="label_118">
@@ -862,6 +879,9 @@ color: rgb(27, 85, 51);</string>
       </property>
      </widget>
      <widget class="QComboBox" name="comboSystem">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>770</x>
@@ -869,6 +889,9 @@ color: rgb(27, 85, 51);</string>
         <width>141</width>
         <height>24</height>
        </rect>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QSpinBox" name="lifespan">
@@ -1037,45 +1060,6 @@ background-color: rgb(255, 106, 0);</string>
      </widget>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="backgroundMat">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>29</y>
-      <width>1131</width>
-      <height>701</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="title">
-     <string/>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
-    <widget class="QPushButton" name="resetFieldsButton">
-     <property name="geometry">
-      <rect>
-       <x>1070</x>
-       <y>10</y>
-       <width>51</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(159, 0, 3);
-color: rgb(209, 179, 255);</string>
-     </property>
-     <property name="text">
-      <string>Reset X</string>
-     </property>
-    </widget>
-   </widget>
    <widget class="QGroupBox" name="backgroundMat2">
     <property name="geometry">
      <rect>
@@ -1094,11 +1078,50 @@ color: rgb(209, 179, 255);</string>
     <property name="flat">
      <bool>false</bool>
     </property>
-    <widget class="QPushButton" name="resetFieldsButton_2">
+   </widget>
+   <widget class="QPushButton" name="deleteCardButton">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>71</y>
+      <width>21</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 0, 0);
+color: rgb(0, 0, 0);</string>
+    </property>
+    <property name="text">
+     <string>X</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="backgroundMat">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>30</y>
+      <width>1161</width>
+      <height>701</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QPushButton" name="resetFieldsButton">
      <property name="geometry">
       <rect>
-       <x>950</x>
-       <y>20</y>
+       <x>1100</x>
+       <y>10</y>
        <width>51</width>
        <height>16</height>
       </rect>
@@ -1118,7 +1141,7 @@ color: rgb(209, 179, 255);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1433</width>
+     <width>1454</width>
      <height>21</height>
     </rect>
    </property>

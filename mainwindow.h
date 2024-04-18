@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
     bool bUpdateMode;
     Ui::MainWindow* uiPtr;
     QVector<Card> Cards;
-    QVector<Action> UpdateActions;
+    QVector<Action> UpdateActions; //same as new actions but for updating a card
     Card UpdateCard;
     QVector<Action> NewActions;
     Action NewAction;
@@ -91,5 +91,8 @@ private:
     bool GetUpdateMode();
     bool CheckValidCardID(QLineEdit *qle);
     bool CardIDExists(QString ID);
+    template<typename T>
+    void RemoveDuplicates(QVector<T>& vec);
+
 };
 #endif // MAINWINDOW_H

@@ -19,6 +19,8 @@ public:
     QString Attribute;
     int AttributeMinimum;
     QVector<QVector<QString>> SecondaryCardSpecifiers;
+    int MinRepetitions;
+    int MaxRepetitions;
 
 
     //result

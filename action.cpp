@@ -9,6 +9,8 @@ Action::Action(const QJsonObject &actionJson)
     this->RequiredLocation = actionKey["ReqLocation"].toString();
     this->Attribute = actionKey["Attribute"].toString();
     this->AttributeMinimum = actionKey["AttributeMinimum"].toInt();
+    this->MinRepetitions = actionKey["MinRepetitions"].toInt();
+    this->MaxRepetitions = actionKey["MaxRepetitions"].toInt();
 
     QJsonArray specifiersArray = actionKey["SecondaryCardSpecifiers"].toArray();
     for (const auto& specifiersValue : specifiersArray)

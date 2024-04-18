@@ -31,8 +31,8 @@ void MainWindow::SetupTables()
 
 
 
-    ui->actionTable->setColumnCount(11);
-    QStringList actionHeaders = {"Name", "Returned", "Required", "ReqLoc", "Duration", "FlavorText", "OutcomeText", "Attribute", "AttributeReq", "AttributeModified", "AttributeModifier"};
+    ui->actionTable->setColumnCount(13);
+    QStringList actionHeaders = {"Name", "Returned", "Required", "MinReps", "MaxReps", "ReqLoc", "Duration", "FlavorText", "OutcomeText", "Attribute", "AttributeReq", "AttributeModified", "AttributeModifier"};
     uiPtr->actionTable->setHorizontalHeaderLabels(actionHeaders);
     ui->actionTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->actionTable->verticalHeader()->setVisible(false);
@@ -168,6 +168,8 @@ void MainWindow::UpdateCardTable()
         }
     }
     uiPtr->orphanTable->setRowCount(0);
+
+    RemoveDuplicates(SearchIDs);
     for(QString& s : SearchIDs)
     {
         int rowCount = uiPtr->orphanTable->rowCount();
@@ -177,6 +179,22 @@ void MainWindow::UpdateCardTable()
     }
 
     uiPtr->cardTable->resizeColumnToContents(0);
+}
+
+template<typename T>
+void MainWindow::RemoveDuplicates(QVector<T>& vec)
+{
+    QSet<T> seen;
+    QVector<T> unique;
+    for (const T& value : vec)
+    {
+        if (!seen.contains(value))
+        {
+            seen.insert(value);
+            unique.append(value);
+        }
+    }
+    vec.swap(unique);
 }
 
 MainWindow::~MainWindow()
@@ -210,6 +228,8 @@ QJsonObject MainWindow::SerializeCard(QVector<Action> Actions)
         actionKey["ReqLocation"] = Actions[i].RequiredLocation;
         actionKey["Attribute"] = Actions[i].Attribute;
         actionKey["AttributeMinimum"] = Actions[i].AttributeMinimum;
+        actionKey["MinRepetitions"] = Actions[i].MinRepetitions;
+        actionKey["MaxRepetitions"] = Actions[i].MaxRepetitions;
 
         // Serialize SecondaryCardSpecifiers
         QJsonArray specifiersArray;
@@ -342,6 +362,7 @@ void MainWindow::on_createCardJSON_clicked()
     Cards.emplace_back(Card(cardJSON));
     UpdateCardTable();
     ResetCardFields();
+    NewActions = QVector<Action>();
 
 
 }
@@ -377,8 +398,80 @@ bool MainWindow::CheckValidCardID(QLineEdit* qle)
 
 void MainWindow::on_addAction_clicked()
 {
+    if(NewAction.ReturnedCardIDs.size() > 4)
+    {
+        // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
+        QMessageBox msgBox;  // Create an instance of QMessageBox
+
+        // Set the icon type to Critical to display the critical message box icon.
+        msgBox.setIcon(QMessageBox::Critical);
+
+        // Set the title of the message box.
+        msgBox.setWindowTitle("Too Many Returned Cards");
+
+        // Set the text to be displayed in the message box.
+        msgBox.setText("The maximum number of returned cards is 4.  (Not counting the Action card which will be automatically returned and added to your current list).");
+
+        // Add an OK button to allow the user to acknowledge the message.
+        msgBox.setStandardButtons(QMessageBox::Ok);
+
+        // Execute the message box and capture the user's response if needed.
+        int reply = msgBox.exec();
+        return;
+    }
+    qDebug() << "after retbox";
+
+    if(NewAction.SecondaryCardSpecifiers.size() > 4)
+    {
+        // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
+        QMessageBox msgBox;  // Create an instance of QMessageBox
+
+        // Set the icon type to Critical to display the critical message box icon.
+        msgBox.setIcon(QMessageBox::Critical);
+
+        // Set the title of the message box.
+        msgBox.setWindowTitle("Too Many Required Cards");
+
+        // Set the text to be displayed in the message box.
+        msgBox.setText("The maximum number of returned cards is 4.");
+
+        // Add an OK button to allow the user to acknowledge the message.
+        msgBox.setStandardButtons(QMessageBox::Ok);
+
+        // Execute the message box and capture the user's response if needed.
+        int reply = msgBox.exec();
+        return;
+    }
+    qDebug() << "after reqbox";
+    //CHECK TO SEE IF WE ARE RETURNING AN ACTION ALREADY
+    //IF NOT PREPEND THE RETUN OF A SINGLE ACTION CARD AS EXPECTED
+
+    bool bActionReturned = false;
+    for(int i = 0; i < NewAction.ReturnedCardIDs.size(); i++)
+    {
+        QString s = NewAction.ReturnedCardIDs[i];
+        if(s == "work" || s == "explore"
+            || s == "craft" || s == "dream"
+            || s =="research" || s =="battle"
+            || s == "talk" || s == "trade"
+            || s == "travel")
+        {
+                bActionReturned = true;
+        }
+
+    }
+
+    if(!bActionReturned)
+    {
+        NewAction.ReturnedCardIDs.prepend(uiPtr->actionCombo->currentText().toLower());
+        NewAction.ReturnedQuantities.prepend(1);
+    }
+
+    qDebug() << "after 3";
     NewAction.ID = uiPtr->ID->text();
     NewAction.ActionName = uiPtr->actionCombo->currentText();
+    NewAction.MinRepetitions = uiPtr->actionRepetitionsMin->text().toInt();
+    NewAction.MaxRepetitions = uiPtr->actionRepetitionsMax->text().toInt();
     NewAction.FlavorText = uiPtr->actionFlavorText->toPlainText();
     NewAction.OutcomeText = uiPtr->actionOutcomeText->toPlainText();
     NewAction.Duration = uiPtr->actionDuration->text().toInt();
@@ -389,12 +482,14 @@ void MainWindow::on_addAction_clicked()
     NewAction.AttributeModifier = uiPtr->actionAttribute->text().toDouble();
     //other fields assigned when adding to the sub tables
     //NewAction initialized
-
+    qDebug() << "after properties";
     int rowCount = uiPtr->actionTable->rowCount();
     uiPtr->actionTable->insertRow(rowCount);
 
     QTableWidgetItem *newName = new QTableWidgetItem(NewAction.ActionName);
     QTableWidgetItem *newFlavorText = new QTableWidgetItem(NewAction.FlavorText);
+    QTableWidgetItem *newMinRepetitions = new QTableWidgetItem(QString::number(NewAction.MinRepetitions));
+    QTableWidgetItem *newMaxRepetitions = new QTableWidgetItem(QString::number(NewAction.MaxRepetitions));
     QTableWidgetItem *newOutcomeText = new QTableWidgetItem(NewAction.OutcomeText);
     QTableWidgetItem *newDuration = new QTableWidgetItem(QString::number(NewAction.Duration));
     QTableWidgetItem *newAttributeReq = new QTableWidgetItem(NewAction.Attribute);
@@ -409,15 +504,17 @@ void MainWindow::on_addAction_clicked()
     uiPtr->actionTable->setItem(rowCount, 0, newName);
     uiPtr->actionTable->setItem(rowCount, 1, newReturned);
     uiPtr->actionTable->setItem(rowCount, 2, newRequired);
-    uiPtr->actionTable->setItem(rowCount, 3, newReqLocation);
-    uiPtr->actionTable->setItem(rowCount, 4, newDuration);
-    uiPtr->actionTable->setItem(rowCount, 5, newFlavorText);
-    uiPtr->actionTable->setItem(rowCount, 6, newOutcomeText);
-    uiPtr->actionTable->setItem(rowCount, 7, newAttributeReq);
-    uiPtr->actionTable->setItem(rowCount, 8, newAttributeMin);
-    uiPtr->actionTable->setItem(rowCount, 9, newAttributeMod);
-    uiPtr->actionTable->setItem(rowCount, 10, newAttributeModAmount);
-
+    uiPtr->actionTable->setItem(rowCount, 3, newMinRepetitions);
+    uiPtr->actionTable->setItem(rowCount, 4, newMaxRepetitions);
+    uiPtr->actionTable->setItem(rowCount, 5, newReqLocation);
+    uiPtr->actionTable->setItem(rowCount, 6, newDuration);
+    uiPtr->actionTable->setItem(rowCount, 7, newFlavorText);
+    uiPtr->actionTable->setItem(rowCount, 8, newOutcomeText);
+    uiPtr->actionTable->setItem(rowCount, 9, newAttributeReq);
+    uiPtr->actionTable->setItem(rowCount, 10, newAttributeMin);
+    uiPtr->actionTable->setItem(rowCount, 11, newAttributeMod);
+    uiPtr->actionTable->setItem(rowCount, 12, newAttributeModAmount);
+    qDebug() << "after table";
     uiPtr->cardTable->resizeColumnToContents(0);
     MakeTablesUneditable();
     if(!GetUpdateMode())
@@ -455,13 +552,15 @@ void MainWindow::ResetActionFields()
     uiPtr->actionRequiredTable->setRowCount(0);
     uiPtr->actionReturnedTable->setRowCount(0);
 
+    uiPtr->actionRepetitionsMax->setValue(0);
+    uiPtr->actionRepetitionsMin->setValue(0);
     uiPtr->actionFlavorText->setPlainText("Flavor text...");
     uiPtr->actionOutcomeText->setPlainText("Outcome text...");
     uiPtr->actionComboAttribute->setCurrentIndex(0);
     uiPtr->actionAttribute->setValue(0.0);
     uiPtr->actionComboAttributeReq->setCurrentIndex(0);
     uiPtr->actionAttributeReq->setValue(0);
-    uiPtr->actionDuration->setValue(5);
+    uiPtr->actionDuration->setValue(8);
     uiPtr->actionReqLocationCombo->setCurrentIndex(0);
 
     uiPtr->actionReqLocCheckbox->setChecked(false);
@@ -469,6 +568,7 @@ void MainWindow::ResetActionFields()
     uiPtr->actionAttributeModifierCheckbox->setChecked(false);
     uiPtr->actionRequiredCheckbox->setChecked(false);
     uiPtr->actionReturnSelf->setChecked(false);
+    uiPtr->actionRepetitionsCheckbox->setChecked(false);
 }
 
 void MainWindow::on_actionRequiredID_textChanged(const QString &arg1)
@@ -500,6 +600,27 @@ void MainWindow::on_actionReturned_textChanged(const QString &arg1)
 
 void MainWindow::on_actionAddRequiredButton_clicked()
 {
+    if(NewAction.SecondaryCardSpecifiers.size() > 4)
+    {
+        // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
+        QMessageBox msgBox;  // Create an instance of QMessageBox
+
+        // Set the icon type to Critical to display the critical message box icon.
+        msgBox.setIcon(QMessageBox::Critical);
+
+        // Set the title of the message box.
+        msgBox.setWindowTitle("Too Many Required Cards");
+
+        // Set the text to be displayed in the message box.
+        msgBox.setText("The maximum number of required cards is 4.");
+
+        // Add an OK button to allow the user to acknowledge the message.
+        msgBox.setStandardButtons(QMessageBox::Ok);
+
+        // Execute the message box and capture the user's response if needed.
+        int reply = msgBox.exec();
+        return;
+    }
     if(uiPtr->actionRequiredID->text() == ""
         && uiPtr->actionRequiredType->currentIndex() == 0
         && uiPtr->actionRequiredProperty->currentIndex() == 0)
@@ -548,6 +669,28 @@ void MainWindow::on_actionAddRequiredButton_clicked()
 
 void MainWindow::on_actionAddReturnedButton_clicked()
 {
+    if(NewAction.ReturnedCardIDs.size() > 4)
+    {
+        // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
+        QMessageBox msgBox;  // Create an instance of QMessageBox
+
+        // Set the icon type to Critical to display the critical message box icon.
+        msgBox.setIcon(QMessageBox::Critical);
+
+        // Set the title of the message box.
+        msgBox.setWindowTitle("Too Many Returned Cards");
+
+        // Set the text to be displayed in the message box.
+        msgBox.setText("The maximum number of returned cards is 4.  (Not counting the Action card which will be automatically returned and added to your current list).");
+
+        // Add an OK button to allow the user to acknowledge the message.
+        msgBox.setStandardButtons(QMessageBox::Ok);
+
+        // Execute the message box and capture the user's response if needed.
+        int reply = msgBox.exec();
+        return;
+    }
+
     if(uiPtr->actionReturned->text() == "")
     {
         // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
@@ -637,7 +780,9 @@ void MainWindow::on_resetFieldsButton_clicked()
     if (reply == QMessageBox::Yes) {
         ResetActionFields();
         ResetCardFields();
-    } else {
+    }
+    else
+    {
         // User clicked 'No' or closed the dialog
         qDebug() << "No was clicked";
     }
@@ -659,7 +804,11 @@ void MainWindow::on_cardSearch_textChanged(const QString &arg1)
     for (int i = 0; i < Cards.size(); ++i)
     {
         // Check if the card name contains the text entered in the search box (case-insensitive)
-        if (Cards[i].Name.contains(arg1, Qt::CaseInsensitive))
+        if (Cards[i].Name.contains(arg1, Qt::CaseInsensitive)
+            || Cards[i].System.contains(arg1, Qt::CaseInsensitive)
+            || Cards[i].Habitat.contains(arg1, Qt::CaseInsensitive)
+            || Cards[i].Type.contains(arg1, Qt::CaseInsensitive)
+            || Cards[i].Property.contains(arg1, Qt::CaseInsensitive))
         {
             // Add a new row for each matching card
             int currentRow = uiPtr->cardTable->rowCount();
@@ -670,7 +819,6 @@ void MainWindow::on_cardSearch_textChanged(const QString &arg1)
 
             uiPtr->cardTable->setItem(currentRow, 0, newCardID);
             uiPtr->cardTable->setItem(currentRow, 1, newName);
-
         }
     }
     MakeTablesUneditable();
@@ -752,6 +900,8 @@ void MainWindow::PopulateWithCardToEdit(Card editCard)
             QTableWidgetItem *newFlavorText = new QTableWidgetItem(a.FlavorText);
             QTableWidgetItem *newOutcomeText = new QTableWidgetItem(a.OutcomeText);
             QTableWidgetItem *newDuration = new QTableWidgetItem(QString::number(a.Duration));
+            QTableWidgetItem *newMinRepetition = new QTableWidgetItem(QString::number(a.MinRepetitions));
+            QTableWidgetItem *newMaxRepetition = new QTableWidgetItem(QString::number(a.MaxRepetitions));
             QTableWidgetItem *newAttributeReq = new QTableWidgetItem(a.Attribute);
             QTableWidgetItem *newAttributeMin = new QTableWidgetItem(QString::number(a.AttributeMinimum));
             QTableWidgetItem *newAttributeMod = new QTableWidgetItem(a.AttributeModified);
@@ -764,14 +914,16 @@ void MainWindow::PopulateWithCardToEdit(Card editCard)
             uiPtr->actionTable->setItem(rowCount, 0, newName);
             uiPtr->actionTable->setItem(rowCount, 1, newReturned);
             uiPtr->actionTable->setItem(rowCount, 2, newRequired);
-            uiPtr->actionTable->setItem(rowCount, 3, newReqLocation);
-            uiPtr->actionTable->setItem(rowCount, 4, newDuration);
-            uiPtr->actionTable->setItem(rowCount, 5, newFlavorText);
-            uiPtr->actionTable->setItem(rowCount, 6, newOutcomeText);
-            uiPtr->actionTable->setItem(rowCount, 7, newAttributeReq);
-            uiPtr->actionTable->setItem(rowCount, 8, newAttributeMin);
-            uiPtr->actionTable->setItem(rowCount, 9, newAttributeMod);
-            uiPtr->actionTable->setItem(rowCount, 10, newAttributeModAmount);
+            uiPtr->actionTable->setItem(rowCount, 3, newMinRepetition);
+            uiPtr->actionTable->setItem(rowCount, 4, newMaxRepetition);
+            uiPtr->actionTable->setItem(rowCount, 5, newReqLocation);
+            uiPtr->actionTable->setItem(rowCount, 6, newDuration);
+            uiPtr->actionTable->setItem(rowCount, 7, newFlavorText);
+            uiPtr->actionTable->setItem(rowCount, 8, newOutcomeText);
+            uiPtr->actionTable->setItem(rowCount, 9, newAttributeReq);
+            uiPtr->actionTable->setItem(rowCount, 10, newAttributeMin);
+            uiPtr->actionTable->setItem(rowCount, 11, newAttributeMod);
+            uiPtr->actionTable->setItem(rowCount, 12, newAttributeModAmount);
             MakeTablesUneditable();
         }
     }
@@ -874,6 +1026,7 @@ void MainWindow::on_editCardJSON_clicked()
     UpdateCardTable();
     ResetCardFields();
     SetUpdateMode(false);
+    UpdateActions = QVector<Action>();
 }
 
 
@@ -883,16 +1036,17 @@ void MainWindow::on_actionRemoveReturnedButton_clicked()
     QItemSelectionModel *selectionModel = ui->actionReturnedTable->selectionModel();
 
     // Check if there is any selected row
-    if (selectionModel->hasSelection()) {
-            // Get the indexes of the selected rows
-            QModelIndexList selectedRows = selectionModel->selectedRows();
+    if (selectionModel->hasSelection())
+    {
+        // Get the indexes of the selected rows
+        QModelIndexList selectedRows = selectionModel->selectedRows();
 
-            // In case of multiple selection, this will remove all selected rows
-            for (int i = selectedRows.count() - 1; i >= 0; i--) {
-            ui->actionReturnedTable->removeRow(selectedRows.at(i).row());
-            NewAction.ReturnedCardIDs.removeAt(i);
-            NewAction.ReturnedQuantities.removeAt(i);
-            }
+        // In case of multiple selection, this will remove all selected rows
+        for (int i = selectedRows.count() - 1; i >= 0; i--) {
+        ui->actionReturnedTable->removeRow(selectedRows.at(i).row());
+        NewAction.ReturnedCardIDs.removeAt(i);
+        NewAction.ReturnedQuantities.removeAt(i);
+    }
     } else {
             qDebug() << "No row is selected to remove.";
     }
@@ -1009,6 +1163,8 @@ void MainWindow::on_actionTable_itemSelectionChanged()
             uiPtr->actionDuration->setValue(EditAction.Duration);
             uiPtr->actionFlavorText->setPlainText(EditAction.FlavorText);
             uiPtr->actionOutcomeText->setPlainText(EditAction.OutcomeText);
+            uiPtr->actionRepetitionsMax->setValue(EditAction.MaxRepetitions);
+            uiPtr->actionRepetitionsMin->setValue(EditAction.MinRepetitions);
 
 
             for(int i = 0; i < EditAction.ReturnedCardIDs.size(); i++)
@@ -1112,6 +1268,7 @@ void MainWindow::on_orphanTable_itemSelectionChanged()
             ResetCardFields();
             ResetActionFields();
             ui->name->setText(IdToString(ui->orphanTable->item(rowIndex, 0)->text()));
+            uiPtr->orphanTable->clearSelection();
 
             MakeTablesUneditable();
 
@@ -1120,6 +1277,7 @@ void MainWindow::on_orphanTable_itemSelectionChanged()
         {
             // User clicked 'No' or closed the dialog
             qDebug() << "No was clicked";
+            uiPtr->orphanTable->clearSelection();
         }
     }
     else
@@ -1152,6 +1310,21 @@ QString MainWindow::IdToString(const QString &input)
 
 void MainWindow::on_deleteCardButton_clicked()
 {
+    bool bCardExists = false;
+    for(Card c : Cards)
+    {
+        if(uiPtr->ID->text() == c.ID)
+        {
+            bCardExists = true;
+        }
+    }
+
+    if(!bCardExists)
+    {
+        ResetCardFields();
+        ResetActionFields();
+        return;
+    }
 
     // Get the current selection model from the table
     QItemSelectionModel *selectionModel = ui->cardTable->selectionModel();

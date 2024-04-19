@@ -31,8 +31,8 @@ void MainWindow::SetupTables()
 
 
 
-    ui->actionTable->setColumnCount(13);
-    QStringList actionHeaders = {"Name", "Returned", "Required", "MinReps", "MaxReps", "ReqLoc", "Duration", "FlavorText", "OutcomeText", "Attribute", "AttributeReq", "AttributeModified", "AttributeModifier"};
+    ui->actionTable->setColumnCount(14);
+    QStringList actionHeaders = {"Title", "Name", "Returned", "Required", "MinReps", "MaxReps", "ReqLoc", "Duration", "FlavorText", "OutcomeText", "Attribute", "AttributeReq", "AttributeModified", "AttributeModifier"};
     uiPtr->actionTable->setHorizontalHeaderLabels(actionHeaders);
     ui->actionTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->actionTable->verticalHeader()->setVisible(false);
@@ -244,6 +244,7 @@ QJsonObject MainWindow::SerializeCard(QVector<Action> Actions)
 
         // Populate actionResult with the result details
         QJsonObject actionResult;
+        actionResult["Title"] = Actions[i].Title;
         actionResult["AttributeModified"] = Actions[i].AttributeModified;
         actionResult["AttributeModifier"] = Actions[i].AttributeModifier;
         actionResult["Duration"] = Actions[i].Duration;
@@ -398,6 +399,29 @@ bool MainWindow::CheckValidCardID(QLineEdit* qle)
 
 void MainWindow::on_addAction_clicked()
 {
+    if(uiPtr->actionTitle->text() == "Action Title")
+    {
+
+        // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
+        QMessageBox msgBox;  // Create an instance of QMessageBox
+
+        // Set the icon type to Critical to display the critical message box icon.
+        msgBox.setIcon(QMessageBox::Critical);
+
+        // Set the title of the message box.
+        msgBox.setWindowTitle("Default Action Title");
+
+        // Set the text to be displayed in the message box.
+        msgBox.setText("Please set an action title or clear the action title field.");
+
+        // Add an OK button to allow the user to acknowledge the message.
+        msgBox.setStandardButtons(QMessageBox::Ok);
+
+        // Execute the message box and capture the user's response if needed.
+        int reply = msgBox.exec();
+        return;
+    }
+
     if(NewAction.ReturnedCardIDs.size() > 4)
     {
         // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
@@ -419,7 +443,6 @@ void MainWindow::on_addAction_clicked()
         int reply = msgBox.exec();
         return;
     }
-    qDebug() << "after retbox";
 
     if(NewAction.SecondaryCardSpecifiers.size() > 4)
     {
@@ -442,7 +465,7 @@ void MainWindow::on_addAction_clicked()
         int reply = msgBox.exec();
         return;
     }
-    qDebug() << "after reqbox";
+
     //CHECK TO SEE IF WE ARE RETURNING AN ACTION ALREADY
     //IF NOT PREPEND THE RETUN OF A SINGLE ACTION CARD AS EXPECTED
 
@@ -467,7 +490,7 @@ void MainWindow::on_addAction_clicked()
         NewAction.ReturnedQuantities.prepend(1);
     }
 
-    qDebug() << "after 3";
+    NewAction.Title = uiPtr->actionTitle->text();
     NewAction.ID = uiPtr->ID->text();
     NewAction.ActionName = uiPtr->actionCombo->currentText();
     NewAction.MinRepetitions = uiPtr->actionRepetitionsMin->text().toInt();
@@ -482,10 +505,10 @@ void MainWindow::on_addAction_clicked()
     NewAction.AttributeModifier = uiPtr->actionAttribute->text().toDouble();
     //other fields assigned when adding to the sub tables
     //NewAction initialized
-    qDebug() << "after properties";
     int rowCount = uiPtr->actionTable->rowCount();
     uiPtr->actionTable->insertRow(rowCount);
 
+    QTableWidgetItem *newTitle = new QTableWidgetItem(NewAction.Title);
     QTableWidgetItem *newName = new QTableWidgetItem(NewAction.ActionName);
     QTableWidgetItem *newFlavorText = new QTableWidgetItem(NewAction.FlavorText);
     QTableWidgetItem *newMinRepetitions = new QTableWidgetItem(QString::number(NewAction.MinRepetitions));
@@ -501,20 +524,21 @@ void MainWindow::on_addAction_clicked()
     QTableWidgetItem *newReqLocation = new QTableWidgetItem(NewAction.RequiredLocation);
 
     // Set the item at the correct position in the table
-    uiPtr->actionTable->setItem(rowCount, 0, newName);
-    uiPtr->actionTable->setItem(rowCount, 1, newReturned);
-    uiPtr->actionTable->setItem(rowCount, 2, newRequired);
-    uiPtr->actionTable->setItem(rowCount, 3, newMinRepetitions);
-    uiPtr->actionTable->setItem(rowCount, 4, newMaxRepetitions);
-    uiPtr->actionTable->setItem(rowCount, 5, newReqLocation);
-    uiPtr->actionTable->setItem(rowCount, 6, newDuration);
-    uiPtr->actionTable->setItem(rowCount, 7, newFlavorText);
-    uiPtr->actionTable->setItem(rowCount, 8, newOutcomeText);
-    uiPtr->actionTable->setItem(rowCount, 9, newAttributeReq);
-    uiPtr->actionTable->setItem(rowCount, 10, newAttributeMin);
-    uiPtr->actionTable->setItem(rowCount, 11, newAttributeMod);
-    uiPtr->actionTable->setItem(rowCount, 12, newAttributeModAmount);
-    qDebug() << "after table";
+    uiPtr->actionTable->setItem(rowCount, 0, newTitle);
+    uiPtr->actionTable->setItem(rowCount, 1, newName);
+    uiPtr->actionTable->setItem(rowCount, 2, newReturned);
+    uiPtr->actionTable->setItem(rowCount, 3, newRequired);
+    uiPtr->actionTable->setItem(rowCount, 4, newMinRepetitions);
+    uiPtr->actionTable->setItem(rowCount, 5, newMaxRepetitions);
+    uiPtr->actionTable->setItem(rowCount, 6, newReqLocation);
+    uiPtr->actionTable->setItem(rowCount, 7, newDuration);
+    uiPtr->actionTable->setItem(rowCount, 8, newFlavorText);
+    uiPtr->actionTable->setItem(rowCount, 9, newOutcomeText);
+    uiPtr->actionTable->setItem(rowCount, 10, newAttributeReq);
+    uiPtr->actionTable->setItem(rowCount, 11, newAttributeMin);
+    uiPtr->actionTable->setItem(rowCount, 12, newAttributeMod);
+    uiPtr->actionTable->setItem(rowCount, 13, newAttributeModAmount);
+
     uiPtr->cardTable->resizeColumnToContents(0);
     MakeTablesUneditable();
     if(!GetUpdateMode())
@@ -551,7 +575,7 @@ void MainWindow::ResetActionFields()
     //clean out other tables
     uiPtr->actionRequiredTable->setRowCount(0);
     uiPtr->actionReturnedTable->setRowCount(0);
-
+    uiPtr->actionTitle->setText("Action Title");
     uiPtr->actionRepetitionsMax->setValue(0);
     uiPtr->actionRepetitionsMin->setValue(0);
     uiPtr->actionFlavorText->setPlainText("Flavor text...");
@@ -896,6 +920,7 @@ void MainWindow::PopulateWithCardToEdit(Card editCard)
             int rowCount = uiPtr->actionTable->rowCount();
             uiPtr->actionTable->insertRow(rowCount);
 
+            QTableWidgetItem *newTitle = new QTableWidgetItem(a.Title);
             QTableWidgetItem *newName = new QTableWidgetItem(a.ActionName);
             QTableWidgetItem *newFlavorText = new QTableWidgetItem(a.FlavorText);
             QTableWidgetItem *newOutcomeText = new QTableWidgetItem(a.OutcomeText);
@@ -911,19 +936,20 @@ void MainWindow::PopulateWithCardToEdit(Card editCard)
             QTableWidgetItem *newReqLocation = new QTableWidgetItem(a.RequiredLocation);
 
             // Set the item at the correct position in the table
-            uiPtr->actionTable->setItem(rowCount, 0, newName);
-            uiPtr->actionTable->setItem(rowCount, 1, newReturned);
-            uiPtr->actionTable->setItem(rowCount, 2, newRequired);
-            uiPtr->actionTable->setItem(rowCount, 3, newMinRepetition);
-            uiPtr->actionTable->setItem(rowCount, 4, newMaxRepetition);
-            uiPtr->actionTable->setItem(rowCount, 5, newReqLocation);
-            uiPtr->actionTable->setItem(rowCount, 6, newDuration);
-            uiPtr->actionTable->setItem(rowCount, 7, newFlavorText);
-            uiPtr->actionTable->setItem(rowCount, 8, newOutcomeText);
-            uiPtr->actionTable->setItem(rowCount, 9, newAttributeReq);
-            uiPtr->actionTable->setItem(rowCount, 10, newAttributeMin);
-            uiPtr->actionTable->setItem(rowCount, 11, newAttributeMod);
-            uiPtr->actionTable->setItem(rowCount, 12, newAttributeModAmount);
+            uiPtr->actionTable->setItem(rowCount, 0, newTitle);
+            uiPtr->actionTable->setItem(rowCount, 1, newName);
+            uiPtr->actionTable->setItem(rowCount, 2, newReturned);
+            uiPtr->actionTable->setItem(rowCount, 3, newRequired);
+            uiPtr->actionTable->setItem(rowCount, 4, newMinRepetition);
+            uiPtr->actionTable->setItem(rowCount, 5, newMaxRepetition);
+            uiPtr->actionTable->setItem(rowCount, 6, newReqLocation);
+            uiPtr->actionTable->setItem(rowCount, 7, newDuration);
+            uiPtr->actionTable->setItem(rowCount, 8, newFlavorText);
+            uiPtr->actionTable->setItem(rowCount, 9, newOutcomeText);
+            uiPtr->actionTable->setItem(rowCount, 10, newAttributeReq);
+            uiPtr->actionTable->setItem(rowCount, 11, newAttributeMin);
+            uiPtr->actionTable->setItem(rowCount, 12, newAttributeMod);
+            uiPtr->actionTable->setItem(rowCount, 13, newAttributeModAmount);
             MakeTablesUneditable();
         }
     }
@@ -1153,7 +1179,7 @@ void MainWindow::on_actionTable_itemSelectionChanged()
 
             ResetActionFields();
 
-
+            uiPtr->actionTitle->setText(EditAction.Title);
             SetComboBoxToString(uiPtr->actionCombo, EditAction.ActionName);
             SetComboBoxToString(uiPtr->actionReqLocationCombo, EditAction.RequiredLocation);
             SetComboBoxToString(uiPtr->actionComboAttributeReq, EditAction.Attribute);

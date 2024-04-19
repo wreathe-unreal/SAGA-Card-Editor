@@ -26,6 +26,7 @@ Action::Action(const QJsonObject &actionJson)
     }
 
     QJsonObject actionResult = actionJson["ActionResult"].toObject();
+    this->Title = actionResult["Title"].toString();
     this->AttributeModified = actionResult["AttributeModified"].toString();
     this->AttributeModifier = actionResult["AttributeModifier"].toDouble();
     this->Duration = actionResult["Duration"].toInt();

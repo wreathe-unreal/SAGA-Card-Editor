@@ -24,6 +24,7 @@ public:
 
 
     //result
+    QString Title;
     QString AttributeModified;
     double AttributeModifier;
     int Duration;

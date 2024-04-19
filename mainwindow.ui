@@ -333,7 +333,7 @@ color: rgb(27, 85, 51);</string>
       </widget>
       <widget class="QLineEdit" name="actionRequiredID">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="geometry">
         <rect>
@@ -683,7 +683,7 @@ color: rgb(0, 0, 0);</string>
       <property name="geometry">
        <rect>
         <x>330</x>
-        <y>2000</y>
+        <y>20</y>
         <width>471</width>
         <height>51</height>
        </rect>

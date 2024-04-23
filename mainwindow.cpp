@@ -399,31 +399,21 @@ bool MainWindow::CheckValidCardID(QLineEdit* qle)
 
 void MainWindow::on_addAction_clicked()
 {
-    if(uiPtr->actionTitle->text() == "Action Title")
+
+    bool bActionReturned = false;
+    for(int i = 0; i < NewAction.ReturnedCardIDs.size(); i++)
     {
+        QString s = NewAction.ReturnedCardIDs[i];
+        if(s == CleanString(uiPtr->actionCombo->currentText()))
+        {
+            bActionReturned = true;
+        }
 
-        // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
-        QMessageBox msgBox;  // Create an instance of QMessageBox
-
-        // Set the icon type to Critical to display the critical message box icon.
-        msgBox.setIcon(QMessageBox::Critical);
-
-        // Set the title of the message box.
-        msgBox.setWindowTitle("Default Action Title");
-
-        // Set the text to be displayed in the message box.
-        msgBox.setText("Please set an action title or clear the action title field.");
-
-        // Add an OK button to allow the user to acknowledge the message.
-        msgBox.setStandardButtons(QMessageBox::Ok);
-
-        // Execute the message box and capture the user's response if needed.
-        int reply = msgBox.exec();
-        return;
     }
 
-    if(NewAction.ReturnedCardIDs.size() > 4)
+    if(NewAction.ReturnedCardIDs.size() > 4 && bActionReturned == false)
     {
+
         // QMessageBox::Critical is a type, not a function. You need to create an instance of QMessageBox to use it.
         QMessageBox msgBox;  // Create an instance of QMessageBox
 
@@ -465,32 +455,16 @@ void MainWindow::on_addAction_clicked()
         int reply = msgBox.exec();
         return;
     }
-
+    qDebug() << "after reqbox";
     //CHECK TO SEE IF WE ARE RETURNING AN ACTION ALREADY
     //IF NOT PREPEND THE RETUN OF A SINGLE ACTION CARD AS EXPECTED
 
-    bool bActionReturned = false;
-    for(int i = 0; i < NewAction.ReturnedCardIDs.size(); i++)
-    {
-        QString s = NewAction.ReturnedCardIDs[i];
-        if(s == "work" || s == "explore"
-            || s == "craft" || s == "dream"
-            || s =="research" || s =="battle"
-            || s == "talk" || s == "trade"
-            || s == "travel")
-        {
-                bActionReturned = true;
-        }
-
-    }
-
     if(!bActionReturned)
     {
-        NewAction.ReturnedCardIDs.prepend(uiPtr->actionCombo->currentText().toLower());
+        NewAction.ReturnedCardIDs.prepend(CleanString(uiPtr->actionCombo->currentText()));
         NewAction.ReturnedQuantities.prepend(1);
     }
 
-    NewAction.Title = uiPtr->actionTitle->text();
     NewAction.ID = uiPtr->ID->text();
     NewAction.ActionName = uiPtr->actionCombo->currentText();
     NewAction.MinRepetitions = uiPtr->actionRepetitionsMin->text().toInt();
@@ -504,6 +478,7 @@ void MainWindow::on_addAction_clicked()
     NewAction.AttributeModified = uiPtr->actionComboAttribute->currentText();
     NewAction.AttributeModifier = uiPtr->actionAttribute->text().toDouble();
     //other fields assigned when adding to the sub tables
+
     //NewAction initialized
     int rowCount = uiPtr->actionTable->rowCount();
     uiPtr->actionTable->insertRow(rowCount);
@@ -539,7 +514,7 @@ void MainWindow::on_addAction_clicked()
     uiPtr->actionTable->setItem(rowCount, 12, newAttributeMod);
     uiPtr->actionTable->setItem(rowCount, 13, newAttributeModAmount);
 
-    uiPtr->cardTable->resizeColumnToContents(0);
+   uiPtr->cardTable->resizeColumnToContents(0);
     MakeTablesUneditable();
     if(!GetUpdateMode())
     {
@@ -705,7 +680,7 @@ void MainWindow::on_actionAddReturnedButton_clicked()
         msgBox.setWindowTitle("Too Many Returned Cards");
 
         // Set the text to be displayed in the message box.
-        msgBox.setText("The maximum number of returned cards is 4.  (Not counting the Action card which will be automatically returned and added to your current list).");
+        msgBox.setText("The maximum number of returned cards is 4.  (Not counting the Action card which will be automatically returned and added to your current list if it does not already exist).");
 
         // Add an OK button to allow the user to acknowledge the message.
         msgBox.setStandardButtons(QMessageBox::Ok);
@@ -950,7 +925,7 @@ void MainWindow::PopulateWithCardToEdit(Card editCard)
             uiPtr->actionTable->setItem(rowCount, 11, newAttributeMin);
             uiPtr->actionTable->setItem(rowCount, 12, newAttributeMod);
             uiPtr->actionTable->setItem(rowCount, 13, newAttributeModAmount);
-            MakeTablesUneditable();
+           MakeTablesUneditable();
         }
     }
     else
@@ -1061,42 +1036,49 @@ void MainWindow::on_actionRemoveReturnedButton_clicked()
     // Get the current selection model from the table
     QItemSelectionModel *selectionModel = ui->actionReturnedTable->selectionModel();
 
-    // Check if there is any selected row
-    if (selectionModel->hasSelection())
-    {
-        // Get the indexes of the selected rows
-        QModelIndexList selectedRows = selectionModel->selectedRows();
+    // Get the indexes of the selected rows
+    QModelIndexList selectedRows = selectionModel->selectedRows();
 
-        // In case of multiple selection, this will remove all selected rows
-        for (int i = selectedRows.count() - 1; i >= 0; i--) {
-        ui->actionReturnedTable->removeRow(selectedRows.at(i).row());
-        NewAction.ReturnedCardIDs.removeAt(i);
-        NewAction.ReturnedQuantities.removeAt(i);
+    // Check if exactly one row is selected
+    if (selectedRows.count() == 1)
+    {
+            int rowIndex = selectedRows.at(0).row();
+            ui->actionReturnedTable->removeRow(rowIndex);
+            NewAction.ReturnedCardIDs.removeAt(rowIndex);
+            NewAction.ReturnedQuantities.removeAt(rowIndex);
     }
-    } else {
-            qDebug() << "No row is selected to remove.";
+    else if (selectedRows.isEmpty())
+    {
+            qDebug() << "No returned row is selected to remove.";
+    }
+    else
+    {
+            qDebug() << "Multiple rows are selected. Only one row can be removed at a time.";
     }
 }
-
 
 void MainWindow::on_actionRemoveRequiredButton_clicked()
 {
     // Get the current selection model from the table
     QItemSelectionModel *selectionModel = ui->actionRequiredTable->selectionModel();
 
-    // Check if there is any selected row
-    if (selectionModel->hasSelection()) {
-            // Get the indexes of the selected rows
-            QModelIndexList selectedRows = selectionModel->selectedRows();
+    // Get the indexes of the selected rows
+    QModelIndexList selectedRows = selectionModel->selectedRows();
 
-            // In case of multiple selection, this will remove all selected rows
-            for (int i = selectedRows.count() - 1; i >= 0; i--)
-            {
-                ui->actionRequiredTable->removeRow(selectedRows.at(i).row());
-                NewAction.SecondaryCardSpecifiers.removeAt(i);
-            }
-    } else {
-            qDebug() << "No row is selected to remove.";
+    // Check if exactly one row is selected
+    if (selectedRows.count() == 1)
+    {
+            int rowIndex = selectedRows.at(0).row();
+            ui->actionRequiredTable->removeRow(rowIndex);
+            NewAction.SecondaryCardSpecifiers.removeAt(rowIndex);
+    }
+    else if (selectedRows.isEmpty())
+    {
+            qDebug() << "No required row is selected to remove.";
+    }
+    else
+    {
+            qDebug() << "Multiple rows are selected. Only one row can be removed at a time.";
     }
 }
 
@@ -1135,7 +1117,7 @@ void MainWindow::on_removeAction_clicked()
     }
     else
     {
-            qDebug() << "No row is selected to remove.";
+            qDebug() << "No action row is selected to remove.";
     }
 }
 
@@ -1452,7 +1434,6 @@ void MainWindow::on_cardTable_clicked(const QModelIndex &index)
         SelectedItem = item->text(); // Update SelectedItem with the new selection
     }
 }
-
 
 void MainWindow::on_actionReturnSelf_stateChanged(int arg1)
 {

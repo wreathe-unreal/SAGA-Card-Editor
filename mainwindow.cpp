@@ -465,6 +465,7 @@ void MainWindow::on_addAction_clicked()
         NewAction.ReturnedQuantities.prepend(1);
     }
 
+    NewAction.Title = uiPtr->actionTitle->text();
     NewAction.ID = uiPtr->ID->text();
     NewAction.ActionName = uiPtr->actionCombo->currentText();
     NewAction.MinRepetitions = uiPtr->actionRepetitionsMin->text().toInt();
